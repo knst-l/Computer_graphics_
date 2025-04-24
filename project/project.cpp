@@ -6,6 +6,11 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "Mesh.h"
+#include "Model.h"
 #include <iostream>
 #include <cmath>
 #include <string>
@@ -167,10 +172,10 @@ int main()
     glewExperimental = GL_TRUE;
     glewInit();
 
-    GLuint VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    glEnable(GL_DEPTH_TEST);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
 
     Shader ourShader("vertex_shader.glsl", "fragment_shader.glsl");
@@ -194,9 +199,21 @@ int main()
 
         ourShader.SetUniform("ourColour", Red, Green, Blue, 1.0);
 
-        glBindVertexArray(VAO);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        ourShader.SetUniform("projection", projection);
+        ourShader.SetUniform("view", view);
+        ourShader.SetUniform("model", model);
+
+
+        Arm.Draw(ourShader);   
+
+       
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
