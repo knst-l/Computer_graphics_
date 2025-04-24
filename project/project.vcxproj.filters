@@ -24,5 +24,7 @@
     <ClInclude Include="ShaderLib.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
   </ItemGroup>
 </Project>
