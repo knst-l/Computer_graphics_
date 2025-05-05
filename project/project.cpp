@@ -1,4 +1,6 @@
-﻿// Чернякова Валерия.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+﻿
+
+// Чернякова Валерия.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 #define GLEW_DLL
 #define GLFW_DLL
@@ -92,6 +94,18 @@ void processInput(GLFWwindow* window) {
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
+void settingMat4(int ID, const char* name, glm::mat4 mat) {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
+}
+
+
+void settingMat3(int ID, const char* name, glm::mat3 mat) {
+    glUniformMatrix3fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
+}
+
+void settingVec3(int ID, const char* name, glm::vec3 mat) {
+    glUniform3fv(glGetUniformLocation(ID, name), 1, &mat[0]);
+}
 
 int main()
 {
@@ -146,6 +160,40 @@ int main()
         ourShader.SetUniform("view", view);
         ourShader.SetUniform("model", model);
 
+        glm::mat4 modelMatrix = glm::mat3(1.0);
+
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+        settingMat3(ourShader.Program, "normalMatrix", normalMatrix);
+
+        //свет
+
+        glm::vec3 lightcolor = glm::vec3(1.0, 1.0, 1.0); 
+        glm::vec3 ambient = lightcolor * glm::vec3(0.2); 
+        glm::vec3 diffuse = lightcolor * glm::vec3(0.1);
+        glm::vec3 specular = lightcolor;
+        glm::vec3 position = glm::vec3(2.0, 2.0, 2.0);
+
+        settingVec3(ourShader.Program, "light_1.ambient", ambient);
+        settingVec3(ourShader.Program, "light_1.diffuse", diffuse);
+        settingVec3(ourShader.Program, "light_1.specular", specular);
+        settingVec3(ourShader.Program, "light_1.position", position);
+
+        //материал
+
+
+        glm::vec3 matambient = glm::vec3(0.8, 0.4, 0.0);
+        glm::vec3 matdiffuse = glm::vec3(0.9, 0.5, 0.1);
+        glm::vec3 matspecular = glm::vec3(1.0, 0.8, 0.5);
+        glm::vec3 matshinies = glm::vec3(64.0f);
+
+        settingVec3(ourShader.Program, "Mat_1.ambient", matambient);
+        settingVec3(ourShader.Program, "Mat_1.diffuse", matdiffuse);
+        settingVec3(ourShader.Program, "Mat_1.specular", matspecular);
+        settingVec3(ourShader.Program, "Mat_1.shinies", matshinies);
+
+        //позиция для расчета
+
+        settingVec3(ourShader.Program, "viewPos", cameraPos);
 
         Arm.Draw(ourShader);
 
@@ -166,3 +214,4 @@ int main()
 //   4. В окне "Список ошибок" можно просматривать ошибки.
 //   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
 //   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+
